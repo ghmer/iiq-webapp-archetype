@@ -54,7 +54,7 @@
 						</goals>
 						<configuration>
 							<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</outputDirectory>
-							<xmlEntityFile>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts/custom_iiqObjects.xml</xmlEntityFile>
+							<xmlEntityFile>custom_iiqObjects.xml</xmlEntityFile>
 							<tokenFile>${basedir}/src/main/resources/tokens.properties</tokenFile>
 							<entityFolder>${basedir}/src/main/entities</entityFolder>
 						</configuration>
