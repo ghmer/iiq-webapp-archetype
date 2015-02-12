@@ -5,18 +5,30 @@
 	<artifactId>${artifactId}</artifactId>
 	<version>${version}</version>
 	<packaging>war</packaging>
-    <properties>
-        <sailpoint.release.groupid></sailpoint.release.groupid>
-        <sailpoint.release.artifactid></sailpoint.release.artifactid>
-        <sailpoint.release.version></sailpoint.release.version>
-        <sailpoint.patch.groupid></sailpoint.patch.groupid>
-        <sailpoint.patch.artifactid></sailpoint.patch.artifactid>
-        <sailpoint.patch.version></sailpoint.patch.version>
-        <project.build.finalWarName></project.build.finalWarName>
-        <project.build.failOnMissingWebXml></project.build.failOnMissingWebXml>
-    </properties>
+		<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>profile.target</name>
+					<value>dev</value>
+				</property>
+			</activation>
+			<properties>
+				<project.build.finalWarName></project.build.finalWarName>
+				<sailpoint.release.groupid></sailpoint.release.groupid>
+				<sailpoint.release.artifactid></sailpoint.release.artifactid>
+				<sailpoint.release.version></sailpoint.release.version>
+				<sailpoint.patch.groupid></sailpoint.patch.groupid>
+				<sailpoint.patch.artifactid></sailpoint.patch.artifactid>
+				<sailpoint.patch.version></sailpoint.patch.version>
+				<project.build.failOnMissingWebXml></project.build.failOnMissingWebXml>
+			</properties>
+		</profile>
+	</profiles>
 	<build>
-		<finalName>${finalWarName}</finalName>
+		<finalName>${project.build.finalWarName}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -44,7 +56,7 @@
 			</plugin>
 			<plugin>
 				<groupId>de.whisperedshouts</groupId>
-				<artifactId>maven-entities-plugin</artifactId>
+				<artifactId>entities-maven-plugin</artifactId>
 				<executions>
 					<execution>
 					<id>copy-resources</id>
@@ -57,6 +69,7 @@
 							<xmlEntityFile>custom_iiqObjects.xml</xmlEntityFile>
 							<tokenFile>${basedir}/src/main/resources/tokens.properties</tokenFile>
 							<entityFolder>${basedir}/src/main/entities</entityFolder>
+							<createImportCommandXml>false</createImportCommandXml>
 						</configuration>
 					</execution>
 				</executions>
@@ -68,10 +81,20 @@
 			    	<includeEmptyDirectories>true</includeEmptyDirectories>
 			    	<warSourceDirectory>${project.build.directory}/${project.artifactId}-${project.version}</warSourceDirectory>
 			    	<packagingExcludes>
-			            WEB-INF/bin/**,
-			            %regex[(WEB-INF\/database\/)(?!((create|drop|post_upgrade|upgrade)_identityiq_tables(-6.3|-6.3p3){0,1}.(mysql))).*$]
+			            WEB-INF/database/*.db2,
+						WEB-INF/database/*.oracle,
+						WEB-INF/database/*.sqlserver,
+						WEB-INF/bin/**,
+						WEB-INF/lib/*freebsd*.so,
+						WEB-INF/lib/*aix*.so,
+						WEB-INF/lib/*solaris*.so,
+						WEB-INF/lib/*hpux*.*,
+						WEB-INF/lib/*ia64*.so,
+						WEB-INF/lib/*ppc*.so,
+						WEB-INF/lib/*ppc64*.so,
+						WEB-INF/lib/*macosx.*
 			        </packagingExcludes>
-			        <failOnMissingWebXml>false</failOnMissingWebXml>
+			        <failOnMissingWebXml>${project.build.failOnMissingWebXml}</failOnMissingWebXml>
 			        <overlays>
 			        	<overlay></overlay>
 			        	<overlay>
