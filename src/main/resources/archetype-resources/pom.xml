@@ -116,7 +116,7 @@
 	<parent>
 		<groupId>de.whisperedshouts</groupId>
 		<artifactId>global-settings</artifactId>
-		<version>1.0.3</version>
+		<version>1.0.4</version>
 	</parent>
 	<dependencies>
 		<dependency>
