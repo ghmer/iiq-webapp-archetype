@@ -6,6 +6,7 @@
 	<artifactId>${artifactId}</artifactId>
 	<version>${version}</version>
 	<packaging>war</packaging>
+	<!-- This build is set up to use profiles. The default "dev" profile includes all required build properties -->
 	<profiles>
 		<profile>
 			<id>dev</id>
@@ -16,15 +17,17 @@
 					<value>dev</value>
 				</property>
 			</activation>
+			<!-- ALL the following properties need to be supplied -->
 			<properties>
+				<!-- GENERIC SECTION -->
+				<!-- The name of the WAR file that we are building -->
 				<project.build.finalWarName></project.build.finalWarName>
-				<sailpoint.release.groupid></sailpoint.release.groupid>
-				<sailpoint.release.artifactid></sailpoint.release.artifactid>
-				<sailpoint.release.version></sailpoint.release.version>
-				<sailpoint.patch.groupid></sailpoint.patch.groupid>
-				<sailpoint.patch.artifactid></sailpoint.patch.artifactid>
-				<sailpoint.patch.version></sailpoint.patch.version>
-				<project.build.failOnMissingWebXml></project.build.failOnMissingWebXml>
+				
+				<!-- set this to true if you want to provide an own web.xml file -->
+				<project.build.failOnMissingWebXml>false</project.build.failOnMissingWebXml>
+				
+				<!-- Which files to exclude in our final WAR file. -->
+				<!-- The default results in a stripped WAR file for a Linux box and a MySQL database -->
 				<project.build.excludePackages>
 					WEB-INF/bin/**,
 					WEB-INF/database/*.db2,
@@ -37,9 +40,46 @@
 					WEB-INF/lib/*ia64*.so,
 					WEB-INF/lib/*ppc*.so,
 					WEB-INF/lib/*ppc64*.so,
-					WEB-INF/lib/*macosx.*
+					WEB-INF/lib/*macosx.*,
+					WEB-INF/lib/sigar-*-winnt.*
 				</project.build.excludePackages>
+				
+				<!-- Creates a JAR file containing the compiled classes  -->
 				<project.build.archiveClassesToJar>true</project.build.archiveClassesToJar>
+				
+				<!-- ARTIFACTS SECTION -->
+				<!-- The groupId of the maven artifact where the RELEASE-WAR file is located -->
+				<sailpoint.release.groupid></sailpoint.release.groupid>
+				
+				<!-- The artifactId of the maven artifact where the RELEASE-WAR file is located -->
+				<sailpoint.release.artifactid></sailpoint.release.artifactid>
+				
+				<!-- The version of the maven artifact where the RELEASE-WAR file is located -->
+				<sailpoint.release.version></sailpoint.release.version>
+				
+				<!-- The groupId of the maven artifact where the PATCH-WAR file is located -->
+				<sailpoint.patch.groupid></sailpoint.patch.groupid>
+				
+				<!-- The artifactId of the maven artifact where the PATCH-WAR file is located -->
+				<sailpoint.patch.artifactid></sailpoint.patch.artifactid>
+				
+				<!-- The version of the maven artifact where the PATCH-WAR file is located -->
+				<sailpoint.patch.version></sailpoint.patch.version>
+				
+				<!-- HOTFIX SECTION -->
+				<!-- Uncomment the following lines if you want to include an EFIX -->
+				<!-- You also have to uncomment the HOTFIX SECTION in the maven-war-plugin configuration -->
+				<!-- and in the dependency configuration below -->
+				<!-- 
+				The groupId of the maven artifact where the EFIX-WAR file is located
+				<sailpoint.patch.groupid></sailpoint.patch.groupid>
+				
+				The artifactId of the maven artifact where the EFIX-WAR file is located
+				<sailpoint.efix.artifactid></sailpoint.efix.artifactid>
+				
+				The version of the maven artifact where the EFIX-WAR file is located
+				<sailpoint.efix.version></sailpoint.efix.version>
+				 -->
 			</properties>
 		</profile>
 	</profiles>
@@ -67,6 +107,44 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<id>copy-webapp-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/webapp</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-classes-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/classes</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
@@ -75,8 +153,18 @@
 					<packagingExcludes>${project.build.excludePackages}</packagingExcludes>
 					<archiveClasses>${project.build.archiveClassesToJar}</archiveClasses>
 					<failOnMissingWebXml>${project.build.failOnMissingWebXml}</failOnMissingWebXml>
+					<!-- Order of overlays is of importance. First one to contain a file wins if the following ones contain the file themselves -->
 					<overlays>
+						<!-- Empty one points to our current project -->
 						<overlay></overlay>
+						<!-- HOTFIX SECTION -->
+						<!-- ATTENTION: IF you want to include a HOTFIX, uncomment the following section -->
+						<!--
+						<overlay>
+							<groupId>${sailpoint.efix.groupid}</groupId>
+							<artifactId>${sailpoint.efix.artifactid}</artifactId>
+						</overlay>
+						-->
 						<overlay>
 							<groupId>${sailpoint.patch.groupid}</groupId>
 							<artifactId>${sailpoint.patch.artifactid}</artifactId>
@@ -103,5 +191,14 @@
 			<version>${sailpoint.patch.version}</version>
 			<type>war</type>
 		</dependency>
+		<!-- HOTFIX SECTION -->
+		<!-- 
+		<dependency>
+			<groupId>${sailpoint.efix.groupid}</groupId>
+			<artifactId>${sailpoint.efix.artifactid}</artifactId>
+			<version>${sailpoint.efix.version}</version>
+			<type>war</type>
+		</dependency>
+		 -->
 	</dependencies>
 </project>
