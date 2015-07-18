@@ -6,7 +6,8 @@
 	<artifactId>${artifactId}</artifactId>
 	<version>${version}</version>
 	<packaging>war</packaging>
-	<!-- This build is set up to use profiles. The default "dev" profile includes all required build properties -->
+	<!-- This build is set up to use profiles. The default "dev" profile includes 
+		all required build properties -->
 	<profiles>
 		<profile>
 			<id>dev</id>
@@ -17,17 +18,25 @@
 					<value>dev</value>
 				</property>
 			</activation>
+			<!-- !!!ATTENTION!!! -->
 			<!-- ALL the following properties need to be supplied -->
 			<properties>
 				<!-- GENERIC SECTION -->
 				<!-- The name of the WAR file that we are building -->
-				<project.build.finalWarName></project.build.finalWarName>
-				
+				<project.build.finalWarName>identityiq</project.build.finalWarName>
+
 				<!-- set this to true if you want to provide an own web.xml file -->
 				<project.build.failOnMissingWebXml>false</project.build.failOnMissingWebXml>
-				
+
+				<!-- Which token file to use -->
+				<project.tokenFile>${basedir}/src/main/resources/dev-tokens.properties</project.tokenFile>
+
+				<!-- What is the correct iiq.properties file for this environment -->
+				<project.iiqEnvironmentFile>dev-iiq.properties</project.iiqEnvironmentFile>
+
 				<!-- Which files to exclude in our final WAR file. -->
-				<!-- The default results in a stripped WAR file for a Linux box and a MySQL database -->
+				<!-- The default results in a stripped WAR file for a Linux box and a 
+					MySQL database -->
 				<project.build.excludePackages>
 					WEB-INF/bin/**,
 					WEB-INF/database/*.db2,
@@ -43,49 +52,49 @@
 					WEB-INF/lib/*macosx.*,
 					WEB-INF/lib/sigar-*-winnt.*
 				</project.build.excludePackages>
-				
-				<!-- Creates a JAR file containing the compiled classes  -->
+
+				<!-- Creates a JAR file containing the compiled classes -->
 				<project.build.archiveClassesToJar>true</project.build.archiveClassesToJar>
-				
+
 				<!-- ARTIFACTS SECTION -->
-				<!-- The groupId of the maven artifact where the RELEASE-WAR file is located -->
+				<!-- The groupId of the maven artifact where the RELEASE-WAR file is 
+					located -->
 				<sailpoint.release.groupid></sailpoint.release.groupid>
-				
-				<!-- The artifactId of the maven artifact where the RELEASE-WAR file is located -->
+
+				<!-- The artifactId of the maven artifact where the RELEASE-WAR file 
+					is located -->
 				<sailpoint.release.artifactid></sailpoint.release.artifactid>
-				
-				<!-- The version of the maven artifact where the RELEASE-WAR file is located -->
+
+				<!-- The version of the maven artifact where the RELEASE-WAR file is 
+					located -->
 				<sailpoint.release.version></sailpoint.release.version>
-				
+
 				<!-- The groupId of the maven artifact where the PATCH-WAR file is located -->
 				<sailpoint.patch.groupid></sailpoint.patch.groupid>
-				
-				<!-- The artifactId of the maven artifact where the PATCH-WAR file is located -->
+
+				<!-- The artifactId of the maven artifact where the PATCH-WAR file is 
+					located -->
 				<sailpoint.patch.artifactid></sailpoint.patch.artifactid>
-				
+
 				<!-- The version of the maven artifact where the PATCH-WAR file is located -->
 				<sailpoint.patch.version></sailpoint.patch.version>
-				
+
 				<!-- HOTFIX SECTION -->
 				<!-- Uncomment the following lines if you want to include an EFIX -->
-				<!-- You also have to uncomment the HOTFIX SECTION in the maven-war-plugin configuration -->
+				<!-- You also have to uncomment the HOTFIX SECTION in the maven-war-plugin 
+					configuration -->
 				<!-- and in the dependency configuration below -->
-				<!-- 
-				The groupId of the maven artifact where the EFIX-WAR file is located
-				<sailpoint.patch.groupid></sailpoint.patch.groupid>
-				
-				The artifactId of the maven artifact where the EFIX-WAR file is located
-				<sailpoint.efix.artifactid></sailpoint.efix.artifactid>
-				
-				The version of the maven artifact where the EFIX-WAR file is located
-				<sailpoint.efix.version></sailpoint.efix.version>
-				 -->
+				<!-- The groupId of the maven artifact where the EFIX-WAR file is located 
+					<sailpoint.patch.groupid></sailpoint.patch.groupid> The artifactId of the 
+					maven artifact where the EFIX-WAR file is located <sailpoint.efix.artifactid></sailpoint.efix.artifactid> 
+					The version of the maven artifact where the EFIX-WAR file is located <sailpoint.efix.version></sailpoint.efix.version> -->
 			</properties>
 		</profile>
 	</profiles>
 	<build>
 		<finalName>${project.build.finalWarName}</finalName>
 		<plugins>
+			<!-- This plugin is used to concatenate our config files -->
 			<plugin>
 				<groupId>de.whisperedshouts</groupId>
 				<artifactId>iiqentities-maven-plugin</artifactId>
@@ -99,13 +108,14 @@
 						<configuration>
 							<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</outputDirectory>
 							<xmlEntityFile>custom_iiqObjects.xml</xmlEntityFile>
-							<tokenFile>${basedir}/src/main/resources/tokens.properties</tokenFile>
-							<entityFolder>${basedir}/src/main/entities</entityFolder>
+							<tokenFile>${project.tokenFile}</tokenFile>
+							<entityFolder>${basedir}/src/main/config</entityFolder>
 							<createImportCommandXml>false</createImportCommandXml>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			<!-- This plugin will copy all of our resource files to the correct locations -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.7</version>
@@ -142,6 +152,40 @@
 							</resources>
 						</configuration>
 					</execution>
+					<execution>
+						<id>copy-classes-environments</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/classes</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/environments</directory>
+									<include>${project.iiqEnvironmentFile}</include>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.coderplus.maven.plugins</groupId>
+				<artifactId>copy-rename-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<executions>
+					<execution>
+						<id>rename-file</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>rename</goal>
+						</goals>
+						<configuration>
+							<sourceFile>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/classes/${project.iiqEnvironmentFile}</sourceFile>
+							<destinationFile>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/classes/iiq.properties</destinationFile>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -153,18 +197,16 @@
 					<packagingExcludes>${project.build.excludePackages}</packagingExcludes>
 					<archiveClasses>${project.build.archiveClassesToJar}</archiveClasses>
 					<failOnMissingWebXml>${project.build.failOnMissingWebXml}</failOnMissingWebXml>
-					<!-- Order of overlays is of importance. First one to contain a file wins if the following ones contain the file themselves -->
+					<!-- Order of overlays is of importance. First one to contain a file 
+						wins if the following ones contain the file themselves -->
 					<overlays>
 						<!-- Empty one points to our current project -->
 						<overlay></overlay>
 						<!-- HOTFIX SECTION -->
-						<!-- ATTENTION: IF you want to include a HOTFIX, uncomment the following section -->
-						<!--
-						<overlay>
-							<groupId>${sailpoint.efix.groupid}</groupId>
-							<artifactId>${sailpoint.efix.artifactid}</artifactId>
-						</overlay>
-						-->
+						<!-- ATTENTION: IF you want to include a HOTFIX, uncomment the following 
+							section -->
+						<!-- <overlay> <groupId>${sailpoint.efix.groupid}</groupId> <artifactId>${sailpoint.efix.artifactid}</artifactId> 
+							</overlay> -->
 						<overlay>
 							<groupId>${sailpoint.patch.groupid}</groupId>
 							<artifactId>${sailpoint.patch.artifactid}</artifactId>
@@ -192,13 +234,10 @@
 			<type>war</type>
 		</dependency>
 		<!-- HOTFIX SECTION -->
-		<!-- 
-		<dependency>
-			<groupId>${sailpoint.efix.groupid}</groupId>
-			<artifactId>${sailpoint.efix.artifactid}</artifactId>
-			<version>${sailpoint.efix.version}</version>
-			<type>war</type>
-		</dependency>
-		 -->
+		<!-- If you got more than one Hotfix to be applied to your project, you 
+			may copy the following section and make the appropriate modifications However, 
+			you must specify unique version -->
+		<!-- <dependency> <groupId>${sailpoint.efix.groupid}</groupId> <artifactId>${sailpoint.efix.artifactid}</artifactId> 
+			<version>${sailpoint.efix.version}</version> <type>war</type> </dependency> -->
 	</dependencies>
 </project>
