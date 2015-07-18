@@ -153,6 +153,22 @@
 						</configuration>
 					</execution>
 					<execution>
+                        <id>copy-xml-configuration</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/environments</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+					<execution>
 						<id>copy-classes-environments</id>
 						<phase>process-resources</phase>
 						<goals>
