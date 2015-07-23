@@ -6,6 +6,7 @@
 	<artifactId>${artifactId}</artifactId>
 	<version>${version}</version>
 	<packaging>war</packaging>
+	
 	<!-- This build is set up to use profiles. The default "dev" profile includes 
 		all required build properties -->
 	<profiles>
@@ -93,32 +94,33 @@
 	</profiles>
 	<build>
 		<finalName>${project.build.finalWarName}</finalName>
+		<pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.coderplus.maven.plugins</groupId>
+                    <artifactId>copy-rename-maven-plugin</artifactId>
+                    <version>1.0.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>de.whisperedshouts</groupId>
+                    <artifactId>iiqentities-maven-plugin</artifactId>
+                    <version>1.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>1.6.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 		<plugins>
-			<!-- This plugin is used to concatenate our config files -->
-			<plugin>
-				<groupId>de.whisperedshouts</groupId>
-				<artifactId>iiqentities-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>generate-xml</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</outputDirectory>
-							<xmlEntityFile>custom_iiqObjects.xml</xmlEntityFile>
-							<tokenFile>${project.tokenFile}</tokenFile>
-							<entityFolder>${basedir}/src/main/config</entityFolder>
-							<createImportCommandXml>false</createImportCommandXml>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<!-- This plugin will copy all of our resource files to the correct locations -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.7</version>
 				<executions>
 					<execution>
 						<id>copy-webapp-resources</id>
@@ -162,7 +164,7 @@
                             <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/environments</directory>
+                                    <directory>src/main/config</directory>
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
@@ -187,9 +189,7 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>com.coderplus.maven.plugins</groupId>
 				<artifactId>copy-rename-maven-plugin</artifactId>
-				<version>1.0.1</version>
 				<executions>
 					<execution>
 						<id>rename-file</id>
@@ -204,8 +204,26 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- This plugin is used to concatenate our config files -->
+            <plugin>
+                <artifactId>iiqentities-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>generate-xml</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</outputDirectory>
+                            <xmlEntityFile>custom_iiqObjects.xml</xmlEntityFile>
+                            <tokenFile>${project.tokenFile}</tokenFile>
+                            <entityFolder>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</entityFolder>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<includeEmptyDirectories>true</includeEmptyDirectories>
