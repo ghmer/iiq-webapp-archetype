@@ -189,7 +189,9 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>copy-rename-maven-plugin</artifactId>
+			    <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>1.6.2</version>
 				<executions>
 					<execution>
 						<id>rename-file</id>
@@ -206,7 +208,9 @@
 			</plugin>
 			<!-- This plugin is used to concatenate our config files -->
             <plugin>
+                <groupId>de.whisperedshouts</groupId>
                 <artifactId>iiqentities-maven-plugin</artifactId>
+                <version>1.0.2</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
