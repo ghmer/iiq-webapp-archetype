@@ -182,6 +182,7 @@
 								<resource>
 									<directory>src/main/environments</directory>
 									<include>${project.iiqEnvironmentFile}</include>
+									<filtering>true</filtering>
 								</resource>
 							</resources>
 						</configuration>
@@ -219,10 +220,8 @@
                             <goal>generate-xml</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</outputDirectory>
+                            <artifactDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</artifactDirectory>
                             <xmlEntityFile>custom_iiqObjects.xml</xmlEntityFile>
-                            <tokenFile>${project.tokenFile}</tokenFile>
-                            <entityFolder>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/config/custom-artifacts</entityFolder>
                         </configuration>
                     </execution>
                 </executions>
