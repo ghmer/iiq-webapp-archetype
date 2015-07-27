@@ -39,7 +39,6 @@
 				<!-- The default results in a stripped WAR file for a Linux box and a 
 					MySQL database -->
 				<project.build.excludePackages>
-					WEB-INF/bin/**,
 					WEB-INF/database/*.db2,
 					WEB-INF/database/*.oracle,
 					WEB-INF/database/*.sqlserver,
